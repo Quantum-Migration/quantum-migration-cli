@@ -15,5 +15,5 @@ scan:
   - '*.go'
   - '*.php'
   rule_file: rsa_rules.yml
-  scan_root: C:\Users\jesse\OneDrive\MASTER FOLDER\Quantum\Quantum Migration\mvp-code\quantum_migration_cli
+  scan_root: C:\Users\
   verbose: true
