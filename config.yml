@@ -1,25 +1,19 @@
 scan:
-  # Root directory to scan (Make sure this is correctly mapped in WSL)
-  scan_root: "/mnt/c/Users/jesse/OneDrive/MASTER FOLDER/Quantum/Quantum Migration"
-
-  # File types to include in the scan
-  include_patterns:
-    - "*.py"     # Python scripts
-    - "*.js"     # JavaScript files
-    - "*.json"   # JSON configuration/data files
-    - "*.cfg"    # General configuration files
-    - "*.ini"    # INI configuration files
-    - "*.yml"    # YAML configuration files
-
-  # Directories to exclude from scanning
+  anonymize: false
+  dry_run: false
   exclude_directories:
-    - ".git"          # Git repositories
-    - "node_modules"  # Node.js dependencies
-    - "/proc"         # Linux system processes (avoid scanning system directories)
-    - "/sys"          # Linux system files
-    - "C:\\Windows"   # Windows system directory (excluded for safety)
-
-  # Scan settings
-  dry_run: false       # If true, only lists files without scanning them
-  verbose: true        # Enable detailed output while scanning
-  anonymize: false     # If true, hides full file paths in the final report
+  - .git
+  - node_modules
+  include_patterns:
+  - '*.py'
+  - '*.js'
+  - '*.java'
+  - '*.c'
+  - '*.cpp'
+  - '*.cs'
+  - '*.rb'
+  - '*.go'
+  - '*.php'
+  rule_file: rsa_rules.yml
+  scan_root: C:\Users\jesse\OneDrive\MASTER FOLDER\Quantum\Quantum Migration\mvp-code\quantum_migration_cli
+  verbose: true

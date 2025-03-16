@@ -8,8 +8,7 @@ import fnmatch
 import logging
 from tqdm import tqdm
 
-# Set up logging: you can configure a file handler if desired.
-logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
 def run_semgrep(target_path, rule_file="pqc_rules.yml"):
     if platform.system() == "Windows":
@@ -22,11 +21,11 @@ def run_semgrep(target_path, rule_file="pqc_rules.yml"):
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
         return json.loads(result.stdout)
     except subprocess.CalledProcessError as e:
-        print(f"Error running Semgrep on {target_path}: {e}")
-        print("Semgrep output:", e.stdout, e.stderr)
+        logging.error(f"Error running Semgrep on {target_path}: {e}")
+        logging.error(f"Semgrep output: {e.stdout} {e.stderr}")
         return {}
     except FileNotFoundError:
-        print("Semgrep not found. Please install semgrep and ensure it is in your PATH.")
+        logging.error("Semgrep not found. Please install semgrep and ensure it is in your PATH.")
         return {}
 
 def assess_risk(result):
@@ -97,7 +96,7 @@ def scan_codebase(root_path, config={}):
     
     if verbose:
         print(f"Found {len(file_list)} files to scan under {root_path}.")
-    
+
     for file_path in tqdm(file_list, desc="Scanning files", disable=not verbose):
         try:
             if not os.access(file_path, os.R_OK):
@@ -110,15 +109,23 @@ def scan_codebase(root_path, config={}):
             # Run semgrep on the file
             result = run_semgrep(file_path)
             for res in result.get("results", []):
-                # Attempt to extract line number; default to "N/A" if missing.
                 line = res.get("start", {}).get("line")
-                line = str(line) if line is not None else "N/A"
+                # Ensure line is a number; if not available, default to 0
+                line = int(line) if line is not None else 0
+                message = res.get("extra", {}).get("message", "No message")
+                risk = assess_risk(res)
+                if risk == "Low":
+                    logging.info(f"[SAFE] {anonymize_path(file_path) if anonymize else file_path} line {line}: {message}")
+                else:
+                    logging.warning(f"[VULN] {anonymize_path(file_path) if anonymize else file_path} line {line}: {message}")
                 findings.append({
                     "file": anonymize_path(file_path) if anonymize else file_path,
                     "line": line,
-                    "message": res.get("extra", {}).get("message", "No message"),
-                    "risk": assess_risk(res)
+                    "message": message,
+                    "risk": risk,
+                    "code": ""  # You can choose to add a code snippet here if needed
                 })
+
         except Exception as e:
             logging.error(f"Error scanning {file_path}: {e}")
             continue
@@ -126,9 +133,3 @@ def scan_codebase(root_path, config={}):
     if verbose:
         print("Read-only scan complete; no file modifications were performed.")
     return findings
-
-def load_config(config_file="config.yml"):
-    with open(config_file, "r") as f:
-        config = yaml.safe_load(f)
-    # Return the 'scan' section if available; otherwise, return the full config.
-    return config.get("scan", config)

@@ -1,0 +1,13 @@
+rules:
+  - id: rsa-usage-detection
+    patterns:
+      - pattern-either:
+          - pattern: rsa.newkeys(...)
+          - pattern: rsa.encrypt(...)
+          - pattern: rsa.decrypt(...)
+          - pattern: rsa.sign(...)
+          - pattern: rsa.verify(...)
+          - pattern: import rsa
+    message: "RSA usage detected. Consider migrating to a PQC scheme (e.g., Kyber)."
+    severity: WARNING
+    languages: [python]

@@ -1,63 +1,9 @@
 rules:
-  - id: insecure-md5
-    patterns:
-      - pattern: hashlib.md5(...)
-    message: "Insecure use of MD5 detected. Use SHA-2 or SHA-3 instead."
-    severity: WARNING
-    languages: [python]
-
-  - id: insecure-sha1
-    patterns:
-      - pattern: hashlib.sha1(...)
-    message: "Insecure use of SHA-1 detected. Use SHA-2 or SHA-3 instead."
-    severity: WARNING
-    languages: [python]
-
   - id: insecure-rsa
-    message: "Insecure RSA key usage detected. Consider using a stronger key (>=3072 bits) or a hybrid RSA+Kyber solution."
+    message: "Insecure RSA key usage detected. Consider using a PQC key generation (e.g. Kyber)."
     severity: WARNING
     languages: [python]
     patterns:
       - pattern: rsa.PublicKey(65537, $X)
     pattern-where-python: |
-      int(str($X)) < 100000000000000  # Flag only if the modulus has fewer than 15 digits
-
-  - id: insecure-3des
-    patterns:
-      - pattern: Crypto.Cipher.DES3.new(...)
-      - pattern: Crypto.Cipher.DES3.MODE_ECB
-      - pattern: Crypto.Cipher.DES3.MODE_CBC
-    message: "Insecure use of Triple DES detected. Use AES-256 or a modern cipher instead."
-    severity: WARNING
-    languages: [python]
-
-  - id: insecure-diffie
-    patterns:
-      - pattern: DiffieHellman(...)
-    message: "Insecure use of Diffie–Hellman detected. Consider using a Kyber-based key exchange."
-    severity: WARNING
-    languages: [python]
-
-  - id: insecure-hmac-md5
-    patterns:
-      - pattern: hmac.new(..., hashlib.md5(...), ...)
-    message: "Insecure HMAC with MD5 detected. Use SHA-2 or SHA-3 instead."
-    severity: WARNING
-    languages: [python]
-
-  - id: insecure-ecdsa
-    patterns:
-      - pattern: ecdsa.SigningKey.generate(...)
-      - pattern: ecdsa.VerifyingKey.from_string(...)
-      - pattern: ecdsa.VerifyingKey.from_pem(...)
-      - pattern: ecdsa.SigningKey.from_pem(...)
-    message: "Insecure use of ECDSA detected. Consider using PQC signature schemes like Dilithium or Falcon."
-    severity: WARNING
-    languages: [python]
-
-  - id: hardcoded-key
-    patterns:
-      - pattern: "hardcoded"
-    message: "Hardcoded cryptographic keys detected. Remove hardcoding and use secure key management."
-    severity: WARNING
-    languages: [python]
+      int(str($X)) < 100000000000000

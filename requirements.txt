@@ -5,5 +5,10 @@ semgrep
 rsa
 pyyaml
 jinja2
-weasyprint  # Optional (for PDF output)
-
+weasyprint
+oqs
+astunparse
+flask
+tqdm
+pytest
+requests
